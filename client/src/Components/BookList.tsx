@@ -1,33 +1,43 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useGetBooksQuery } from '../redux/booksApiSlice';
 import { Book } from '../BookModels';
 import { BookItem } from './BookItem';
+import { DeleteModal } from '../Components/DeleteModal';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faClose, faCaretDown } from '@fortawesome/free-solid-svg-icons';
 import '../App.css';
 
 export function BookList() {
-  const [books, setBooks] = useState<Book[]>([]);
-  const [selectedGenre, setSelectedGenre] = useState<String>();
-
-  const getBooks = async () => {
-    const result = await fetch('http://localhost:8080/books');
-    const books = await result.json();
-    setBooks(books);
-  }
-
-  useEffect(() => {
-    getBooks();
-  }, []);
+  const [selectedGenre, setSelectedGenre] = useState('');
+  const { data, isLoading, error } = useGetBooksQuery(selectedGenre);
+  const [selectedBook, setSelectedBook] = useState<Book>();
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const onSelectGenre = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const value = event.target.value;
     setSelectedGenre(value);
   };
 
+  const onOpenDeleteModal = (book: Book) => {
+    setSelectedBook(book);
+    window.scrollTo(0, 0);
+    setIsDeleteModalOpen(true);
+  }
+
+  if (isLoading) {
+    return (
+      <div className='loading'>
+        <h2>Loading...</h2>
+      </div>
+    )
+  }
+
   return (
     <div className='book-list-wrap'>
       <header className='book-list-header'>
-        <div>
-          <select onChange={onSelectGenre} className='book-list-select'>
-            <option selected disabled>
+        <div style={{position: 'relative'}}>
+          <select onChange={onSelectGenre} className='book-list-select' value={selectedGenre}>
+            <option value='' disabled>
               Filter by Genre
             </option>
             <option value="Adventure">Adventure</option>
@@ -39,7 +49,20 @@ export function BookList() {
             <option value="Hobbies">Hobbies</option>
             <option value="History">History</option>
           </select>
+          <button
+            onClick={() => setSelectedGenre('')}
+            className='select-icon'
+            disabled={!selectedGenre}
+          >
+            {selectedGenre ? (
+              <FontAwesomeIcon icon={faClose}/>
+              ) : (
+                <FontAwesomeIcon icon={faCaretDown}/>
+              )
+            }
+          </button>
         </div>
+        <button className='add-new-book-btn'>Add New Book</button>
       </header>
       <div className='book-list-table-wrap'>
         <table>
@@ -49,15 +72,27 @@ export function BookList() {
               <th>Author</th>
               <th>Genre</th>
               <th>Availability</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
-            {books?.map((book) => {
-              return <BookItem book={book} key={book.id}/>
+            {data?.map((book) => {
+              return (
+                <BookItem
+                  key={book.id}
+                  book={book}
+                  openDeleteModal={onOpenDeleteModal}
+                />
+              )
             })}
           </tbody>
         </table>
       </div>
+      <DeleteModal
+        book={selectedBook}
+        open={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+      />
     </div>
   )
 }
