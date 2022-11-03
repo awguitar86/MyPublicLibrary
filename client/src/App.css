@@ -44,13 +44,22 @@ h2 {
   border-radius: 4px;
 }
 
-.select-icon {
+#select-icon {
   background: white;
   border: none;
   position: absolute;
   left: 175px;
   top: 10px;
   padding-right: 10px;
+}
+
+#create-edit-genre-select-icon {
+  background: white;
+  border: none;
+  position: absolute;
+  left: 178px;
+  top: 10px;
+  padding: 0px 10px 0px 0px;
 }
 
 .add-new-book-btn {
@@ -128,7 +137,7 @@ button, select {
 }
 
 .modal-body {
-  width: auto;
+  min-width: 300px;
   height: auto;
   padding: 30px;
   border-radius: 4px;
@@ -187,4 +196,49 @@ button, select {
 
 .add-modal-btn:hover {
   background-color: #2FDADA ;
+}
+
+.modal-inputs-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 30px;
+  width: 100%;
+}
+
+.modal-inputs-wrap label {
+  font-size: 14px;
+  margin-bottom: 3px;
+  font-weight: 600;
+}
+
+.modal-inputs-wrap input {
+  width: 90%;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px #CACBCE solid;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.modal-input-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.modal-switch-wrap {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.modal-switch-wrap label {
+  margin-right: 20px;
+  margin-bottom: 0;
+}
+
+.create-edit-modal-btn-wrap {
+
 }

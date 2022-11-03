@@ -1,17 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useGetBooksQuery } from '../redux/booksApiSlice';
 import { Book } from '../BookModels';
 import { BookItem } from './BookItem';
 import { DeleteModal } from '../Components/DeleteModal';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faClose, faCaretDown } from '@fortawesome/free-solid-svg-icons';
+import { CreateOrEditBookModal } from '../Components/CreateOrEditBookModal';
+import { GenreSelect } from './GenreSelect';
 import '../App.css';
 
 export function BookList() {
   const [selectedGenre, setSelectedGenre] = useState('');
-  const { data, isLoading, error } = useGetBooksQuery(selectedGenre);
-  const [selectedBook, setSelectedBook] = useState<Book>();
+  const { data, isLoading, error, refetch } = useGetBooksQuery(selectedGenre);
+  const [selectedBook, setSelectedBook] = useState({} as Book);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isCreateOrEditModalOpen, setIsCreateOrEditModalOpen] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const onSelectGenre = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const value = event.target.value;
@@ -22,6 +24,27 @@ export function BookList() {
     setSelectedBook(book);
     window.scrollTo(0, 0);
     setIsDeleteModalOpen(true);
+  }
+
+  const onOpenCreateOrEditModal = (book: Book) => {
+    setSelectedBook(book);
+    window.scrollTo(0, 0);
+    setIsCreateOrEditModalOpen(true);
+  }
+
+  const onCloseModal = () => {
+    if (isDeleteModalOpen) {
+      setSelectedBook({} as Book);
+      setIsDeleteModalOpen(false)
+      setIsSuccess(false);
+      refetch()
+    }
+    if (isCreateOrEditModalOpen) {
+      setSelectedBook({} as Book);
+      setIsCreateOrEditModalOpen(false);
+      setIsSuccess(false);
+      refetch()
+    }
   }
 
   if (isLoading) {
@@ -35,34 +58,22 @@ export function BookList() {
   return (
     <div className='book-list-wrap'>
       <header className='book-list-header'>
-        <div style={{position: 'relative'}}>
-          <select onChange={onSelectGenre} className='book-list-select' value={selectedGenre}>
-            <option value='' disabled>
-              Filter by Genre
-            </option>
-            <option value="Adventure">Adventure</option>
-            <option value="Biography">Biography</option>
-            <option value="Children">Children</option>
-            <option value="Classic">Classic</option>
-            <option value="Cooking">Cooking</option>
-            <option value="Fantasy">Fantasy</option>
-            <option value="Hobbies">Hobbies</option>
-            <option value="History">History</option>
-          </select>
-          <button
-            onClick={() => setSelectedGenre('')}
-            className='select-icon'
-            disabled={!selectedGenre}
-          >
-            {selectedGenre ? (
-              <FontAwesomeIcon icon={faClose}/>
-              ) : (
-                <FontAwesomeIcon icon={faCaretDown}/>
-              )
-            }
-          </button>
-        </div>
-        <button className='add-new-book-btn'>Add New Book</button>
+        <GenreSelect
+          onChange={onSelectGenre}
+          selectedGenre={selectedGenre}
+          setSelectedGenre={setSelectedGenre}
+          defaultText='Filter by Genre'
+          iconClassName='select-icon'
+        />
+        <button
+          className='add-new-book-btn'
+          onClick={() => {
+            window.scrollTo(0, 0);
+            setIsCreateOrEditModalOpen(true);
+          }}
+        >
+          Add New Book
+        </button>
       </header>
       <div className='book-list-table-wrap'>
         <table>
@@ -82,6 +93,7 @@ export function BookList() {
                   key={book.id}
                   book={book}
                   openDeleteModal={onOpenDeleteModal}
+                  openCreateOrEditModal={onOpenCreateOrEditModal}
                 />
               )
             })}
@@ -91,7 +103,14 @@ export function BookList() {
       <DeleteModal
         book={selectedBook}
         open={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
+        onClose={onCloseModal}
+      />
+      <CreateOrEditBookModal
+        book={selectedBook}
+        open={isCreateOrEditModalOpen}
+        onClose={onCloseModal}
+        isSuccess={isSuccess}
+        setIsSuccess={setIsSuccess}
       />
     </div>
   )

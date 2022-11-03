@@ -6,9 +6,10 @@ import { faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
 interface BookItemProps {
   book: Book;
   openDeleteModal: (book: Book) => void
+  openCreateOrEditModal: (book: Book) => void
 }
 
-export function BookItem({book, openDeleteModal}: BookItemProps) {
+export function BookItem({book, openDeleteModal, openCreateOrEditModal}: BookItemProps) {
   return (
     <tr>
       <td className='book-title'>{book.title}</td>
@@ -16,7 +17,7 @@ export function BookItem({book, openDeleteModal}: BookItemProps) {
       <td>{book.genre}</td>
       <td>{book.checkedOut ? 'Checked Out' : 'Available'}</td>
       <td className='book-actions'>
-        <button className='icon-button'>
+        <button className='icon-button' onClick={() => openCreateOrEditModal(book)}>
           <FontAwesomeIcon icon={faPen} size='lg'/>
         </button>
         <button className='icon-button' onClick={() => openDeleteModal(book)}>

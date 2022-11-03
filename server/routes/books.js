@@ -7,9 +7,12 @@ booksRouter.get('/', async (req, res) => {
   try {
     let response;
     if (req.query.genre) {
-      response = await db.Books.findAll({ where: { genre: req.query.genre } });
+      response = await db.Books.findAll({
+        where: { genre: req.query.genre },
+        order: [['title', 'ASC']],
+      });
     } else {
-      response = await db.Books.findAll();
+      response = await db.Books.findAll({ order: [['title', 'ASC']] });
     }
     return res.status(200).send(response);
   } catch (err) {
